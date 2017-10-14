@@ -14,15 +14,118 @@
       <link href="assets/css/toolkit-inverse.css" rel="stylesheet">
       <link href="assets/css/application.css" rel="stylesheet">
 
-    <!--<style>
-      /* note: this is a hack for ios iframe for bootstrap themes shopify page */
-      /* this chunk of css is not part of the toolkit :) */
-      body {
-        width: 1px;
-        min-width: 100%;
-        *width: 100%;
-      }
-    </style>-->
+    <!-- ACTUAL CHAT BOX -->
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		var accessToken = "1d04062d38314d7fa5341aa55982c643";
+		var baseUrl = "https://api.api.ai/v1/";
+		$(document).ready(function() {
+			$("#input").keypress(function(event) {
+				if (event.which == 13) {
+					event.preventDefault();
+					send();
+				}
+			});
+			$("#rec").click(function(event) {
+				switchRecognition();
+			});
+		});
+		var recognition;
+		function startRecognition() {
+			recognition = new webkitSpeechRecognition();
+			recognition.onstart = function(event) {
+				updateRec();
+			};
+			recognition.onresult = function(event) {
+				var text = "";
+			    for (var i = event.resultIndex; i < event.results.length; ++i) {
+			    	text += event.results[i][0].transcript;
+			    }
+			    setInput(text);
+				stopRecognition();
+			};
+			recognition.onend = function() {
+				stopRecognition();
+			};
+			recognition.lang = "en-US";
+			recognition.start();
+		}
+
+		function stopRecognition() {
+			if (recognition) {
+				recognition.stop();
+				recognition = null;
+			}
+			updateRec();
+		}
+		function switchRecognition() {
+			if (recognition) {
+				stopRecognition();
+			} else {
+				startRecognition();
+			}
+		}
+		function setInput(text) {
+			$("#input").val(text);
+			send();
+		}
+		function updateRec() {
+			$("#rec").text(recognition ? "Stop" : "Speak");
+		}
+		function send() {
+			var text = $("#input").val();
+			$.ajax({
+				type: "POST",
+				url: baseUrl + "query?v=20150910",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				headers: {
+					"Authorization": "Bearer " + accessToken
+				},
+				data: JSON.stringify({ query: text, lang: "en", sessionId: "somerandomthing" }),
+				success: function(data) {
+					setResponse(JSON.stringify(data, undefined, 2));
+				},
+				error: function() {
+					setResponse("Internal Server Error");
+				}
+			});
+			setResponse("Loading...");
+		}
+		function setResponse(val) {
+			$("#response").text(val);
+		}
+		function send() {
+			var text = $("#input").val();
+			$.ajax({
+				type: "POST",
+				url: baseUrl + "query?v=20150910",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				headers: {
+					"Authorization": "Bearer " + accessToken
+				},
+				data: JSON.stringify({ query: text, lang: "en", sessionId: "somerandomthing" }),
+				success: function(data) {
+					var respText = data.result.fulfillment.speech;
+					console.log("Respuesta: " + respText);
+					setResponse(respText);
+				},
+				error: function() {
+					setResponse("Internal Server Error");
+				}
+			});
+			setResponse("Thinking...");
+		}
+	</script>
+	<!--<style type="text/css">
+		body { width: 500px; margin: 0 auto; text-align: center; margin-top: 20px; }
+		div {  position: absolute; }
+		input { width: 400px; }
+		button { width: 50px; }
+		textarea { width: 100%; }
+	</style>-->
   </head>
 <body>
   <div class="container">
@@ -39,12 +142,7 @@
           </div>
 
           <div class="collapse nav-toggleable-md" id="nav-toggleable-md">
-            <form class="sidebar-form">
-              <input class="form-control" type="text" placeholder="Search...">
-              <button type="submit" class="btn-link">
-                <span class="icon icon-magnifying-glass"></span>
-              </button>
-            </form>
+
             <ul class="nav nav-pills nav-stacked flex-column">
               <li class="nav-header">Dashboards</li>
               <li class="nav-item">
@@ -94,6 +192,10 @@
       <span class="icon icon-calendar"></span>
     </div>
   </div>
+</div>
+<div class = "chatbox">
+		<textarea id="response" cols="40" rows="20"></textarea>
+        <input id="input" type="text"> <button id="rec">Speak</button>
 </div>
 
 <hr class="mt-5">

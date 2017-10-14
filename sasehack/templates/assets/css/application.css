@@ -26,3 +26,35 @@ hr {
 .navbar-static-top {
   border-bottom: 0;
 }
+
+
+/*body { width: 500px; margin: 0 auto; text-align: center; margin-top: 20px; }*/
+.chatbox {
+  position: absolute;
+}
+#input {
+  margin-left: 100px;
+  border: none;
+  border-bottom: 2px #3CBC8D;
+  border-radius: 0.25rem;
+  width: 400px;
+  background-color: #d16163;
+  color: white;
+  font-size: 17px;
+}
+#rec {
+  width: 50px;
+}
+#response {
+  margin-top: 57px;
+  margin-left: 100px;
+  border: none;
+  border-bottom: 2px #3CBC8D;
+  border-radius: 0.25rem;
+  height: 250px;
+  width: 453px;
+  background-color: #5e6d86;
+  color: white;
+  font-size: large;
+
+}
