@@ -126,33 +126,44 @@ class ResponseSchema(ma.Schema):
     displayText = fields.Str(attribute='display_text')
     followupEvent = fields.Nested(FollowupEventSchema, attribute='followup_event')
 
+last_session = None
 last_id = 0
+
+def go():
+    global last_id
+    row = db.session.query(Question)\
+        .outerjoin(Answer, Question.id == Answer.question_id) \
+        .join(Property, Question.property_id == Property.id) \
+        .join(PropertyType, Property.property_type_id == PropertyType.id) \
+        .filter(Question.id > last_id) \
+        .first()
+    last_id = row.id
+    pprint(questions_schema.dump(row))
+    intent = row.property.property_type.intent
+    print(row.value)
+    return Response(row.value)
+    # return Response(row.value, followup_event=FollowupEvent(intent))
+
 
 def respond_to(input: UserInput) -> Response:
     global last_id
+    global last_session
+
+    if last_session != input.session_id:
+        last_session = input.session_id
+        last_id = 0
+        print('reset session id')
+
     # if input.action == 'smalltalk.greetings.hello' or input.action == 'ask':
 
     if input.action == 'start':
-        row = db.session.query(Question)\
-            .outerjoin(Answer, Question.id == Answer.question_id)\
-            .join(Property, Question.property_id == Property.id)\
-            .join(PropertyType, Property.property_type_id == PropertyType.id)\
-            .first()
+        return go()
 
-        last_id = row.id
-
-        pprint(questions_schema.dump(row))
-        return Response(text=row.value, followup_event=FollowupEvent(row.property.property_type.intent))
+    # if input.action == 'ask':
+    #     return Response(followup_event=FollowupEvent(input.params['intent']))
 
     if input.action == 'welcome.yes':
-        row = db.session.query(Question)\
-            .outerjoin(Answer, Question.id == Answer.question_id)\
-            .join(Property, Question.property_id == Property.id)\
-            .join(PropertyType, Property.property_type_id == PropertyType.id)\
-            .first()
-
-        pprint(questions_schema.dump(row))
-        return Response(text=row.value, followup_event=FollowupEvent(row.property.property_type.intent))
+        return go()
 
     if input.action == 'input.unknown':
         if not input.raw.startswith('/'):
@@ -174,11 +185,14 @@ def respond_to(input: UserInput) -> Response:
 
     return Response()
 
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     json = request.get_json()
     pprint(json)
 
+    session_id = json['sessionId']
+    params = json['result']['parameters']
     raw = json['result']['resolvedQuery']
     action = json['result']['action']
 
@@ -189,7 +203,7 @@ def webhook():
 
     print("ACTION='{}', INTENT='{}'".format(action, intent))
 
-    result = respond_to(UserInput(raw, action, intent))
+    result = respond_to(UserInput(session_id, params, raw, action, intent))
     print(ResponseSchema().dump(result).data)
 
     # {
