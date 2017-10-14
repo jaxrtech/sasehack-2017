@@ -58,3 +58,28 @@ hr {
   font-size: large;
 
 }
+
+.footers{
+  position: fixed;
+	bottom:0;
+   list-style-type: none;
+}
+.footLines{
+   list-style-type: none;
+}
+
+.MTitle{
+  font-weight: bold;
+
+  font-size: 30px;
+}
+
+#rec{
+  background-color: #1997c6;
+   border: none;
+    color: white;
+   border-radius: 0.25rem;
+  font-size: 17px;
+  padding: 0;
+
+}

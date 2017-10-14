@@ -23,3 +23,24 @@ class UserSchema(ma.Schema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
+
+@app.route('/api/users/')
+def users():
+    all_users = User.all()
+    result = users_schema.dump(all_users)
+    return jsonify(result.data)
+    # OR
+    # return user_schema.jsonify(all_users)
+
+@app.route('/api/users/<id>')
+def user_detail(id):
+    user = User.get(id)
+    return user_schema.jsonify(user)
+# {
+#     "email": "fred@queen.com",
+#     "date_created": "Fri, 25 Apr 2014 06:02:56 -0000",
+#     "_links": {
+#         "self": "/api/authors/42",
+#         "collection": "/api/authors/"
+#     }
+# }

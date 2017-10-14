@@ -29,7 +29,7 @@
     <div class="row">
       <div class="col-md-3 sidebar">
         <nav class="sidebar-nav">
-          <div class="sidebar-header">
+          <div class="sidebar-header MTitle"> Prosper
             <button class="nav-toggler nav-toggler-md sidebar-toggler" type="button" data-toggle="collapse" data-target="#nav-toggleable-md">
               <span class="sr-only">Toggle nav</span>
             </button>
@@ -46,10 +46,7 @@
                 <a class="nav-link " href="index.html">Chat Box</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link " href="tasks.html">Tasks</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active "href="stats.html">Stats</a>
+                <a class="nav-link active "href="stats.html">Statistics</a>
               </li>
 
               <li class="nav-header">More</li>
@@ -80,12 +77,12 @@
         <div class="dashhead">
   <div class="dashhead-titles">
     <h6 class="dashhead-subtitle">Dashboards</h6>
-    <h2 class="dashhead-title">Chat Box</h2>
+    <h2 class="dashhead-title">Statistics</h2>
   </div>
 
   <div class="btn-toolbar dashhead-toolbar">
     <div class="btn-toolbar-item input-with-icon">
-      <input type="text" value="10/04/17" class="form-control" data-provide="datepicker">
+      <input type="text" value="10/14/17" class="form-control" data-provide="datepicker">
       <span class="icon icon-calendar"></span>
     </div>
   </div>
@@ -100,13 +97,12 @@
         class="ex-graph"
         width="200" height="200"
         data-chart="doughnut"
-        data-dataset="[10, 130, 20]"
-        data-dataset-options="{ borderColor: '#252830', backgroundColor: ['#1ca8dd', '#1bc98e', '#DC143C'] }"
-        data-labels="['Returning', 'New', 'Cool']">
+        data-dataset="[84, 16]"
+        data-dataset-options="{ borderColor: '#252830', backgroundColor: ['#1ca8dd', '#1bc98e'] }"
+        data-labels="['Precision', 'Error']">
       </canvas>
     </div>
-    <strong class="text-muted">Traffic</strong>
-    <h4>New vs Ritwik</h4>
+    <h4>Predictive Accuracy of Sleeping Hours</h4>
   </div>
   <div class="col-md-4 mb-4 mb-md-3">
     <div class="w-3 mx-auto">
@@ -114,27 +110,12 @@
         class="ex-graph"
         width="200" height="200"
         data-chart="doughnut"
-        data-dataset="[330,30]"
+        data-dataset="[99.98,1]"
         data-dataset-options="{ borderColor: '#252830', backgroundColor: ['#1ca8dd', '#1bc98e'] }"
-        data-labels="['Returning', 'New']">
+        data-labels="['Precision', 'Error']">
       </canvas>
     </div>
-    <strong class="text-muted">Revenue</strong>
-    <h4>New vs Recurring</h4>
-  </div>
-  <div class="col-md-4 mb-4 mb-md-3">
-    <div class="w-3 mx-auto">
-      <canvas
-        class="ex-graph"
-        width="200" height="200"
-        data-chart="doughnut"
-        data-dataset="[100,260]"
-        data-dataset-options="{ borderColor: '#252830', backgroundColor: ['#1ca8dd', '#1bc98e'] }"
-        data-labels="['Referrals', 'Direct']">
-      </canvas>
-    </div>
-    <strong class="text-muted">Traffic</strong>
-    <h4>Direct vs Referrals</h4>
+    <h4>Chance of a Heart Attack</h4>
   </div>
 </div>
 
