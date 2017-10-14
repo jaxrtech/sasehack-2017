@@ -1,10 +1,10 @@
-import collections
 import logging
 from pprint import pprint
+
 from flask import Flask
-from flask import request, jsonify
+from flask import request
 from flask_marshmallow import Marshmallow
-from marshmallow import Schema, fields, pprint
+from marshmallow import fields, pprint
 
 logging.basicConfig(level=logging.DEBUG)
 
