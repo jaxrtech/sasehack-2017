@@ -19,8 +19,8 @@ from sasehack.models import UserInput, Response, FollowupEvent
 
 logging.basicConfig(level=logging.DEBUG)
 
-def connect(user, password, db, host='localhost', port=5432):
-    """Returns a connection and a metadata object"""
+
+def make_connection_str(user, password, db, host='localhost', port=5432):
     # We connect with the help of the PostgreSQL URL
     # postgresql://federer:grandestslam@localhost:5432/tennis
     url = 'postgresql://{}:{}@{}:{}/{}'
@@ -29,7 +29,7 @@ def connect(user, password, db, host='localhost', port=5432):
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = connect(
+app.config['SQLALCHEMY_DATABASE_URI'] = make_connection_str(
     user=settings.POSTGRES_USER,
     password=settings.POSTGRES_PASSWORD,
     db=settings.POSTGRES_DATABASE,
@@ -115,7 +115,6 @@ questions_schema = QuestionSchema()
 
 ### APPLICATION ###
 
-
 class FollowupEventSchema(ma.Schema):
     name = fields.Str()
     data = fields.Dict()
@@ -126,10 +125,12 @@ class ResponseSchema(ma.Schema):
     displayText = fields.Str(attribute='display_text')
     followupEvent = fields.Nested(FollowupEventSchema, attribute='followup_event')
 
+
 last_session = None
 last_id = 0
 
-def go():
+
+def go(input: UserInput):
     global last_id
     row = db.session.query(Question)\
         .outerjoin(Answer, Question.id == Answer.question_id) \
@@ -141,7 +142,7 @@ def go():
     pprint(questions_schema.dump(row))
     intent = row.property.property_type.intent
     print(row.value)
-    return Response(row.value)
+    return Response(input.message + row.value)
     # return Response(row.value, followup_event=FollowupEvent(intent))
 
 
@@ -154,16 +155,17 @@ def respond_to(input: UserInput) -> Response:
         last_id = 0
         print('reset session id')
 
-    # if input.action == 'smalltalk.greetings.hello' or input.action == 'ask':
+    if input.action == 'smalltalk.greetings.hello':
+        return go(input)
+
+    if input.intent.startswith('question-'):
+        return go(input)
 
     if input.action == 'start':
-        return go()
-
-    # if input.action == 'ask':
-    #     return Response(followup_event=FollowupEvent(input.params['intent']))
+        return go(input)
 
     if input.action == 'welcome.yes':
-        return go()
+        return go(input)
 
     if input.action == 'input.unknown':
         if not input.raw.startswith('/'):
@@ -191,6 +193,14 @@ def webhook():
     json = request.get_json()
     pprint(json)
 
+    try:
+        x = json['result']['fulfillment']['speech']
+        if x.startswith('Unable to find'):
+            raise KeyError
+        message = x + '\n'
+    except KeyError:
+        message = ''
+
     session_id = json['sessionId']
     params = json['result']['parameters']
     raw = json['result']['resolvedQuery']
@@ -203,24 +213,15 @@ def webhook():
 
     print("ACTION='{}', INTENT='{}'".format(action, intent))
 
-    result = respond_to(UserInput(session_id, params, raw, action, intent))
+    result = respond_to(UserInput(message, session_id, params, raw, action, intent))
     print(ResponseSchema().dump(result).data)
-
-    # {
-    #     'speech': text,
-    #     'displayText': text,
-    #     'followupEvent': {
-    #         'name': 'initial_question',
-    #         "data": {}
-    #     }
-    # }
 
     return ResponseSchema().jsonify(result)
 
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!!'
+    return 'Hello World!'
 
 
 @app.route('/questions')

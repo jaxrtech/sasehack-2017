@@ -13,7 +13,8 @@ class Response:
 
 
 class UserInput:
-    def __init__(self, session_id: str, params: dict, text: str, action: str, intent: str):
+    def __init__(self, message: str, session_id: str, params: dict, text: str, action: str, intent: str):
+        self.message = message
         self.session_id = session_id
         self.params = params
         self.raw = text
